@@ -1,0 +1,53 @@
+body {
+  margin: 0;
+  background-color: transparent; /* Pour s'intégrer à Notion */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px; /* L'espacement classique IG */
+  padding: 10px;
+  max-width: 500px;
+  margin: auto;
+}
+
+.post-wrapper {
+  aspect-ratio: 1 / 1;
+  position: relative;
+  overflow: hidden;
+  cursor: grab;
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+
+.post-wrapper:active {
+  cursor: grabbing;
+}
+
+.media-content {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.carousel-dots {
+  position: absolute;
+  bottom: 8px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.dot.active {
+  background: #fff;
+}
