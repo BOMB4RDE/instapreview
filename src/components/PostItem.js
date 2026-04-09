@@ -19,31 +19,37 @@ export default function PostItem({ post }) {
   return (
     <>
       <div className="post-wrapper">
-        {/* L'IMAGE DU FEED */}
-        <img 
-          src={images[currentIndex]} 
-          className="media-content" 
-          alt="" 
-          draggable="false" 
-        />
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={images[currentIndex]}
+            src={images[currentIndex]}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="media-content"
+            draggable="false"
+          />
+        </AnimatePresence>
 
-        {/* BOUTON ZOOM (Uniquement au survol via CSS) */}
-        <div 
-          className="zoom-icon" 
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsLightboxOpen(true);
-          }}
-        >
-          🔍 Agrandir
+        {/* BOUTON ZOOM */}
+        <div className="zoom-icon" onClick={(e) => { e.stopPropagation(); setIsLightboxOpen(true); }}>
+          🔍 Zoom
         </div>
 
-        {/* CARROUSEL (On ne change rien au fonctionnement) */}
+        {/* CARROUSEL (Flèches et Points) */}
         {images.length > 1 && (
           <>
             <div className="carousel-controls">
-              <button className="nav-btn left" onClick={prevSlide} style={{ visibility: currentIndex === 0 ? 'hidden' : 'visible' }}>‹</button>
-              <button className="nav-btn right" onClick={nextSlide} style={{ visibility: currentIndex === images.length - 1 ? 'hidden' : 'visible' }}>›</button>
+              <button 
+                className="nav-btn" 
+                onClick={prevSlide} 
+                style={{ visibility: currentIndex === 0 ? 'hidden' : 'visible' }}
+              >‹</button>
+              <button 
+                className="nav-btn" 
+                onClick={nextSlide} 
+                style={{ visibility: currentIndex === images.length - 1 ? 'hidden' : 'visible' }}
+              >›</button>
             </div>
             <div className="carousel-dots">
               {images.map((_, i) => (
@@ -54,7 +60,7 @@ export default function PostItem({ post }) {
         )}
       </div>
 
-      {/* VUE EN GRAND */}
+      {/* LIGHTBOX (Vue en grand) */}
       <AnimatePresence>
         {isLightboxOpen && (
           <motion.div 
@@ -70,6 +76,7 @@ export default function PostItem({ post }) {
               className="lightbox-content"
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
+              onClick={(e) => e.stopPropagation()}
             />
           </motion.div>
         )}
