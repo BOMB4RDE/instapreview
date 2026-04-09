@@ -3,60 +3,36 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function PostItem({ post }) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
   const images = Array.isArray(post.url) ? post.url : [post.url];
-  const isCarousel = images.length > 1;
-
-  const nextSlide = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (currentIndex < images.length - 1) setCurrentIndex(currentIndex + 1);
-  };
-
-  const prevSlide = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
-  };
 
   return (
-    <div className="post-wrapper" style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <AnimatePresence mode="wait">
-        <motion.img
-          key={images[currentIndex]}
-          src={images[currentIndex]}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="media-content"
-          draggable="false"
-        />
-      </AnimatePresence>
+    <>
+      <div className="post-wrapper" onClick={() => setIsOpen(true)}>
+        <img src={images[currentIndex]} className="media-content" draggable="false" alt="" />
+        {images.length > 1 && <div className="carousel-indicator">❐</div>}
+      </div>
 
-      {isCarousel && (
-        <>
-          <div className="carousel-controls">
-            <button 
-              className="nav-btn left" 
-              style={{ visibility: currentIndex === 0 ? 'hidden' : 'visible' }}
-              onPointerDown={prevSlide}
-            >
-              ‹
-            </button>
-            <button 
-              className="nav-btn right" 
-              style={{ visibility: currentIndex === images.length - 1 ? 'hidden' : 'visible' }}
-              onPointerDown={nextSlide}
-            >
-              ›
-            </button>
-          </div>
-          <div className="carousel-dots">
-            {images.map((_, i) => (
-              <div key={i} className={`dot ${i === currentIndex ? 'active' : ''}`} />
-            ))}
-          </div>
-        </>
-      )}
-    </div>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
+            className="lightbox-overlay"
+            onClick={() => setIsOpen(false)}
+          >
+            <button className="close-lightbox">×</button>
+            <motion.img 
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              src={images[currentIndex]} 
+              className="lightbox-content" 
+              onClick={(e) => e.stopPropagation()} 
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
