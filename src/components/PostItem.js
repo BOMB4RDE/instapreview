@@ -3,39 +3,65 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function PostItem({ post }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const isCarousel = Array.isArray(post.url) && post.url.length > 1;
+  const images = Array.isArray(post.url) ? post.url : [post.url];
+  const isCarousel = images.length > 1;
 
   const nextSlide = (e) => {
     e.stopPropagation();
-    if (currentIndex < post.url.length - 1) setCurrentIndex(currentIndex + 1);
+    if (currentIndex < images.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+    }
   };
 
   const prevSlide = (e) => {
     e.stopPropagation();
-    if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
+    if (currentIndex > 0) {
+      setCurrentIndex(prev => prev - 1);
+    }
   };
 
   return (
     <div className="post-wrapper">
       <AnimatePresence mode="wait">
         <motion.img
-          key={isCarousel ? post.url[currentIndex] : post.url}
-          src={isCarousel ? post.url[currentIndex] : post.url}
+          key={images[currentIndex]}
+          src={images[currentIndex]}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="media-content"
+          draggable="false"
         />
       </AnimatePresence>
 
       {isCarousel && (
         <>
           <div className="carousel-controls">
-            {currentIndex > 0 && <button onClick={prevSlide} className="nav-btn left">‹</button>}
-            {currentIndex < post.url.length - 1 && <button onClick={nextSlide} className="nav-btn right">›</button>}
+            {/* Bouton Gauche */}
+            {currentIndex > 0 ? (
+              <button 
+                className="nav-btn left" 
+                onClick={prevSlide}
+                onPointerDown={(e) => e.stopPropagation()} 
+              >
+                ‹
+              </button>
+            ) : <div />} 
+
+            {/* Bouton Droite */}
+            {currentIndex < images.length - 1 ? (
+              <button 
+                className="nav-btn right" 
+                onClick={nextSlide}
+                onPointerDown={(e) => e.stopPropagation()}
+              >
+                ›
+              </button>
+            ) : <div />}
           </div>
+          
           <div className="carousel-dots">
-            {post.url.map((_, i) => (
+            {images.map((_, i) => (
               <div key={i} className={`dot ${i === currentIndex ? 'active' : ''}`} />
             ))}
           </div>
