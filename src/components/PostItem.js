@@ -3,12 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function PostItem({ post }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  // ÉTAT POUR LA LIGHTBOX (Ajouté)
   const [isLightboxOpen, setIsLightboxOpen] = useState(false); 
   const images = Array.isArray(post.url) ? post.url : [post.url];
   const isCarousel = images.length > 1;
 
-  // Fonctions de carrousel (CONSERVÉES À L'IDENTIQUE)
+  // Fonctions de navigation (On garde ta version BACKUP qui fonctionne)
   const nextSlide = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -23,13 +22,6 @@ export default function PostItem({ post }) {
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
     }
-  };
-
-  // Fonction pour ouvrir la lightbox (Ajoutée)
-  const openLightbox = (e) => {
-    e.preventDefault();
-    e.stopPropagation(); // Empêche le drag-and-drop
-    setIsLightboxOpen(true);
   };
 
   return (
@@ -47,15 +39,19 @@ export default function PostItem({ post }) {
           />
         </AnimatePresence>
 
-        {/* --- ICÔNE LOUPE (Ajoutée) --- */}
+        {/* BOUTON LOUPE (Placé ici pour être au-dessus de l'image) */}
         <div 
           className="zoom-icon" 
-          onClick={openLightbox} // Ouvre la lightbox au clic
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation(); // Bloque le drag pour ne pas déplacer le post
+            setIsLightboxOpen(true);
+          }}
         >
           🔍
         </div>
 
-        {/* CARROUSEL (CONSERVÉ À L'IDENTIQUE) */}
+        {/* CARROUSEL (Flèches et Points - Version BACKUP) */}
         {isCarousel && (
           <>
             <div className="carousel-controls">
@@ -84,7 +80,7 @@ export default function PostItem({ post }) {
         )}
       </div>
 
-      {/* --- LIGHTBOX (Vue en grand) --- */}
+      {/* VUE EN GRAND (LIGHTBOX) */}
       <AnimatePresence>
         {isLightboxOpen && (
           <motion.div 
@@ -92,18 +88,16 @@ export default function PostItem({ post }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setIsLightboxOpen(false)} // Ferme en cliquant sur le fond
+            onClick={() => setIsLightboxOpen(false)}
           >
-            {/* Croix de fermeture */}
             <button className="close-lightbox" onClick={() => setIsLightboxOpen(false)}>×</button>
-            
             <motion.img 
               src={images[currentIndex]} 
               className="lightbox-content"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()} // Empêche la fermeture si on clique sur l'image
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
+              onClick={(e) => e.stopPropagation()} 
             />
           </motion.div>
         )}
