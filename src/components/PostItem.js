@@ -3,14 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function PostItem({ post }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isLightboxOpen, setIsLightboxOpen] = useState(false); // État pour la vue en grand
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const images = Array.isArray(post.url) ? post.url : [post.url];
   const isCarousel = images.length > 1;
 
-  // Fonctions de carrousel (restaurées)
+  // Fonctions de carrousel (on n'y touche plus)
   const nextSlide = (e) => {
     e.preventDefault();
-    e.stopPropagation(); // Bloque le drag
+    e.stopPropagation();
     if (currentIndex < images.length - 1) {
       setCurrentIndex(currentIndex + 1);
     }
@@ -18,15 +18,20 @@ export default function PostItem({ post }) {
 
   const prevSlide = (e) => {
     e.preventDefault();
-    e.stopPropagation(); // Bloque le drag
+    e.stopPropagation();
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
     }
   };
 
+  // Fonction pour ouvrir la lightbox (uniquement via l'icône)
+  const openLightbox = (e) => {
+    e.stopPropagation(); // Empêche d'autres actions
+    setIsLightboxOpen(true);
+  };
+
   return (
     <>
-      {/* POST WRAPPER - RESTAURÉ (avec gestion du clic centre) */}
       <div className="post-wrapper" style={{ position: 'relative' }}>
         <AnimatePresence mode="wait">
           <motion.img
@@ -37,26 +42,30 @@ export default function PostItem({ post }) {
             exit={{ opacity: 0 }}
             className="media-content"
             draggable="false"
-            // CLIC CENTRE : Ouvre la lightbox
-            onClick={() => setIsLightboxOpen(true)}
+            // Le clic sur l'image ne fait plus rien
           />
         </AnimatePresence>
 
-        {/* CAROUSEL CONTROLS - RESTAURÉS (avec onPointerDown) */}
+        {/* --- ICÔNE DE ZOOM (Apparaît au survol) --- */}
+        <div className="zoom-icon" onClick={openLightbox}>
+          🔍 {/* Tu peux remplacer par une icône SVG si tu préfères */}
+        </div>
+
+        {/* CAROUSEL CONTROLS (On n'y touche plus) */}
         {isCarousel && (
           <>
             <div className="carousel-controls">
               <button 
                 className="nav-btn left" 
                 style={{ visibility: currentIndex === 0 ? 'hidden' : 'visible' }}
-                onPointerDown={prevSlide} //onPointerDown pour court-circuiter le drag
+                onPointerDown={prevSlide}
               >
                 ‹
               </button>
               <button 
                 className="nav-btn right" 
                 style={{ visibility: currentIndex === images.length - 1 ? 'hidden' : 'visible' }}
-                onPointerDown={nextSlide} //onPointerDown pour court-circuiter le drag
+                onPointerDown={nextSlide}
               >
                 ›
               </button>
@@ -71,7 +80,7 @@ export default function PostItem({ post }) {
         )}
       </div>
 
-      {/* LIGHTBOX (Ajoutée) */}
+      {/* LIGHTBOX (Vue en grand) */}
       <AnimatePresence>
         {isLightboxOpen && (
           <motion.div 
