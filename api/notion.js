@@ -1,6 +1,9 @@
 export default async function handler(req, res) {
   const { NOTION_TOKEN, DATABASE_ID } = process.env;
 
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Content-Security-Policy', 'frame-ancestors *');
+
   try {
     const response = await fetch(`https://api.notion.com/v1/databases/${DATABASE_ID}/query`, {
       method: 'POST',
@@ -21,6 +24,8 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
+    if (!response.ok) return res.status(response.status).json({ error: data.message });
+
     const posts = data.results.map(page => {
       const mediaProp = page.properties.Media || page.properties.media;
       const files = mediaProp?.files || [];
@@ -28,7 +33,8 @@ export default async function handler(req, res) {
       return {
         id: page.id,
         url: files.map(f => f.file?.url || f.external?.url),
-        date: page.created_time // On garde la date pour le futur swap
+        // On récupère la date de création pour le futur swap
+        date: page.created_time
       };
     }).filter(post => post !== null);
 
