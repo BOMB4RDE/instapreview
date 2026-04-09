@@ -1,13 +1,14 @@
 body {
   margin: 0;
-  background-color: transparent; /* Pour s'intégrer à Notion */
+  background-color: transparent;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  user-select: none; /* Évite de sélectionner le texte en glissant */
 }
 
 .grid-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 2px; /* L'espacement classique IG */
+  gap: 8px; /* Un peu plus d'espace pour l'esthétique */
   padding: 10px;
   max-width: 500px;
   margin: auto;
@@ -17,19 +18,57 @@ body {
   aspect-ratio: 1 / 1;
   position: relative;
   overflow: hidden;
-  cursor: grab;
-  background: #f0f0f0;
   border-radius: 4px;
-}
-
-.post-wrapper:active {
-  cursor: grabbing;
+  background: #efefef;
+  cursor: grab;
 }
 
 .media-content {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  pointer-events: none; /* Important pour que le drag fonctionne bien */
+}
+
+/* CAROUSEL CONTROLS */
+.carousel-controls {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 8px;
+  opacity: 0; /* Caché par défaut */
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+
+.post-wrapper:hover .carousel-controls {
+  opacity: 1; /* Apparaît au survol */
+}
+
+.nav-btn {
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  pointer-events: auto; /* Pour pouvoir cliquer malgré le drag */
+}
+
+.nav-btn:hover {
+  background: #fff;
 }
 
 .carousel-dots {
@@ -39,13 +78,15 @@ body {
   display: flex;
   justify-content: center;
   gap: 4px;
+  z-index: 11;
 }
 
 .dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.4);
+  transition: background 0.2s;
 }
 
 .dot.active {
