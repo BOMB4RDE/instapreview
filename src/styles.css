@@ -1,72 +1,52 @@
-body {
-  margin: 0;
-  background-color: transparent;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  user-select: none; /* Évite de sélectionner le texte en glissant */
-}
-
+/* GRILLE 4:5 */
 .grid-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px; /* Un peu plus d'espace pour l'esthétique */
+  gap: 2px; /* Style Instagram */
   padding: 10px;
-  max-width: 500px;
-  margin: auto;
 }
 
 .post-wrapper {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 5; /* Format Portrait Instagram */
   position: relative;
   overflow: hidden;
-  border-radius: 4px;
-  background: #efefef;
-  cursor: grab;
+  cursor: pointer;
 }
 
 .media-content {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  pointer-events: none; /* Important pour que le drag fonctionne bien */
+  object-fit: cover; /* Remplit le 4:5 sans déformer */
 }
 
-/* CAROUSEL CONTROLS */
-.carousel-controls {
-  position: absolute;
+/* LIGHTBOX (Vue en grand) */
+.lightbox-overlay {
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 50; /* Doit être au dessus de tout */
-  pointer-events: none; /* Laisse passer le drag au centre */
-}
-
-.nav-btn {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, 0.9);
-  color: black;
-  font-weight: bold;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1000;
+}
+
+.lightbox-content {
+  max-width: 90%;
+  max-height: 90%;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+.close-lightbox {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 40px;
   cursor: pointer;
-  pointer-events: auto; /* Active le clic sur le bouton uniquement */
-  margin: 0 5px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  opacity: 0;
-  transition: opacity 0.2s;
+  line-height: 1;
 }
-
-.post-wrapper:hover .nav-btn {
-  opacity: 1;
-}
-
-/* La flèche gauche à gauche, la droite à droite */
-.nav-btn.left { order: 1; }
-.nav-btn.right { order: 2; }
