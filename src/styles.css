@@ -1,24 +1,17 @@
-/* --- CSS D'ORIGINE RESTAURÉ --- */
-body, html, #root {
-  margin: 0; padding: 0; width: 100%; height: 100%;
-  overflow: hidden; background-color: transparent;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
-
-.App { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
-
-/* GRILLE - MODIFIÉE POUR RÉDUIRE LA TAILLE (6 colonnes au lieu de 3) */
+/* --- GRILLE : RETOUR À 3 COLONNES --- */
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(6, 1fr); /* Divise par 2 la taille visible de chaque post */
-  gap: 4px; /* Un peu plus d'espace pour la clarté */
+  grid-template-columns: repeat(3, 1fr); /* 3 Colonnes comme Instagram */
+  gap: 4px;
   padding: 10px;
-  width: 100%; max-width: 100%; height: auto;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
 }
 
-/* POST WRAPPER - RESTAURÉ AVEC RATIO 4:5 */
+/* --- POST WRAPPER (Ratio 4:5 conservé) --- */
 .post-wrapper {
-  aspect-ratio: 4 / 5; /* FORMAT PORTRAIT DEMANDÉ */
+  aspect-ratio: 4 / 5;
   background-color: #1a1a1a;
   border-radius: 8px;
   overflow: hidden;
@@ -29,66 +22,64 @@ body, html, #root {
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.post-wrapper:active { cursor: grabbing; scale: 1.05; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); z-index: 10; }
-
-.media-content {
-  width: 100%; height: 100%;
-  object-fit: cover; /* Remplit le 4:5 sans déformer */
-  pointer-events: none;
+/* --- ICÔNE DE ZOOM AU SURVOL --- */
+.zoom-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  opacity: 0; /* Cachée par défaut */
+  transition: opacity 0.2s;
+  z-index: 6; /* Au-dessus du carrousel */
+  cursor: pointer;
 }
 
-/* CAROUSEL CONTROLS (Restaurés à 100%) */
-.carousel-controls {
-  position: absolute; top: 0; left: 0;
-  width: 100%; height: 100%;
-  display: flex; justify-content: space-between; align-items: center;
-  z-index: 5; pointer-events: none;
+.post-wrapper:hover .zoom-icon {
+  opacity: 1; /* Visible au survol */
 }
 
-.nav-btn {
-  width: 24px; height: 24px; /* Légèrement plus petits pour la grille plus fine */
-  border-radius: 50%; border: none;
-  background: rgba(255, 255, 255, 0.8); color: black;
-  font-size: 16px; font-weight: bold;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; pointer-events: auto;
-  margin: 0 4px; opacity: 0; transition: opacity 0.2s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
-
-.post-wrapper:hover .nav-btn { opacity: 1; }
-
-.carousel-dots {
-  position: absolute; bottom: 8px; left: 50%;
-  transform: translateX(-50%);
-  display: flex; gap: 4px; z-index: 5;
-}
-
-.dot { width: 4px; height: 4px; border-radius: 50%; background: rgba(255, 255, 255, 0.5); }
-.dot.active { background: white; }
-
-/* STATUS MESSAGES (Restaurés) */
-.status-msg { color: #888; text-align: center; padding: 40px; font-size: 14px; }
-
-/* --- NOUVEAU CSS : LIGHTBOX (Ajouté) --- */
+/* --- LIGHTBOX (Vue en grand) --- */
 .lightbox-overlay {
-  position: fixed; top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background: rgba(0, 0, 0, 0.9);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 1000; cursor: zoom-out;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.95); /* Fond plus sombre */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  cursor: zoom-out;
 }
 
 .lightbox-content {
-  max-width: 90%; max-height: 90%;
-  box-shadow: 0 0 30px rgba(0,0,0,0.6);
+  max-width: 90%;
+  max-height: 90%;
+  box-shadow: 0 0 30px rgba(0,0,0,0.8);
   border-radius: 4px;
 }
 
 .close-lightbox {
-  position: absolute; top: 20px; right: 20px;
-  background: none; border: none;
-  color: white; font-size: 40px; font-weight: bold;
-  cursor: pointer; line-height: 1;
-  padding: 0; margin: 0;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 50px; /* Plus grande croix */
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  margin: 0;
+  z-index: 1001; /* Au-dessus de l'image */
 }
