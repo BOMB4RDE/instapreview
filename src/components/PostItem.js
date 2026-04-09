@@ -5,72 +5,46 @@ export default function PostItem({ post }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const images = Array.isArray(post.url) ? post.url : [post.url];
-  const isCarousel = images.length > 1;
 
-  // Fonctions de carrousel (on n'y touche plus)
   const nextSlide = (e) => {
-    e.preventDefault();
     e.stopPropagation();
-    if (currentIndex < images.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    }
+    if (currentIndex < images.length - 1) setCurrentIndex(currentIndex + 1);
   };
 
   const prevSlide = (e) => {
-    e.preventDefault();
     e.stopPropagation();
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    }
-  };
-
-  // Fonction pour ouvrir la lightbox (uniquement via l'icône)
-  const openLightbox = (e) => {
-    e.stopPropagation(); // Empêche d'autres actions
-    setIsLightboxOpen(true);
+    if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
   };
 
   return (
     <>
-      <div className="post-wrapper" style={{ position: 'relative' }}>
-        <AnimatePresence mode="wait">
-          <motion.img
-            key={images[currentIndex]}
-            src={images[currentIndex]}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="media-content"
-            draggable="false"
-            // Le clic sur l'image ne fait plus rien
-          />
-        </AnimatePresence>
+      <div className="post-wrapper">
+        {/* L'IMAGE DU FEED */}
+        <img 
+          src={images[currentIndex]} 
+          className="media-content" 
+          alt="" 
+          draggable="false" 
+        />
 
-        {/* --- ICÔNE DE ZOOM (Apparaît au survol) --- */}
-        <div className="zoom-icon" onClick={openLightbox}>
-          🔍 {/* Tu peux remplacer par une icône SVG si tu préfères */}
+        {/* BOUTON ZOOM (Uniquement au survol via CSS) */}
+        <div 
+          className="zoom-icon" 
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsLightboxOpen(true);
+          }}
+        >
+          🔍 Agrandir
         </div>
 
-        {/* CAROUSEL CONTROLS (On n'y touche plus) */}
-        {isCarousel && (
+        {/* CARROUSEL (On ne change rien au fonctionnement) */}
+        {images.length > 1 && (
           <>
             <div className="carousel-controls">
-              <button 
-                className="nav-btn left" 
-                style={{ visibility: currentIndex === 0 ? 'hidden' : 'visible' }}
-                onPointerDown={prevSlide}
-              >
-                ‹
-              </button>
-              <button 
-                className="nav-btn right" 
-                style={{ visibility: currentIndex === images.length - 1 ? 'hidden' : 'visible' }}
-                onPointerDown={nextSlide}
-              >
-                ›
-              </button>
+              <button className="nav-btn left" onClick={prevSlide} style={{ visibility: currentIndex === 0 ? 'hidden' : 'visible' }}>‹</button>
+              <button className="nav-btn right" onClick={nextSlide} style={{ visibility: currentIndex === images.length - 1 ? 'hidden' : 'visible' }}>›</button>
             </div>
-            
             <div className="carousel-dots">
               {images.map((_, i) => (
                 <div key={i} className={`dot ${i === currentIndex ? 'active' : ''}`} />
@@ -80,26 +54,22 @@ export default function PostItem({ post }) {
         )}
       </div>
 
-      {/* LIGHTBOX (Vue en grand) */}
+      {/* VUE EN GRAND */}
       <AnimatePresence>
         {isLightboxOpen && (
           <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }}
             className="lightbox-overlay"
-            onClick={() => setIsLightboxOpen(false)} // Ferme en cliquant sur le fond
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsLightboxOpen(false)}
           >
-            {/* Croix de fermeture */}
-            <button className="close-lightbox" onClick={() => setIsLightboxOpen(false)}>×</button>
-            
+            <button className="close-lightbox">×</button>
             <motion.img 
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.8 }}
               src={images[currentIndex]} 
-              className="lightbox-content" 
-              onClick={(e) => e.stopPropagation()} // Empêche la fermeture si on clique sur l'image
+              className="lightbox-content"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
             />
           </motion.div>
         )}
