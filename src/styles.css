@@ -1,22 +1,20 @@
-/* --- CONFIGURATION GLOBALE --- */
 body, html, #root {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
   display: flex;
-  justify-content: center; /* Centre le feed horizontalement */
+  justify-content: center;
   background-color: transparent;
   overflow-x: hidden;
 }
 
 .App {
   width: 100%;
-  max-width: 600px; /* LIMITE LA LARGEUR : Ajuste cette valeur pour agrandir/réduire le feed */
+  max-width: 600px; /* Largeur idéale pour Notion */
   margin: 0 auto;
 }
 
-/* --- GRILLE : 3 COLONNES FIXES --- */
 .grid-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr); 
@@ -26,7 +24,6 @@ body, html, #root {
   box-sizing: border-box;
 }
 
-/* --- POST WRAPPER (Format 4:5 Forcé) --- */
 .post-wrapper {
   aspect-ratio: 4 / 5;
   background-color: #1a1a1a;
@@ -36,24 +33,70 @@ body, html, #root {
   cursor: grab;
 }
 
-/* --- IMAGE DANS LA GRILLE --- */
 .media-content {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* FORCE L'IMAGE à remplir le 4:5 sans se déformer */
+  object-fit: cover;
   display: block;
 }
 
-/* --- ICÔNE DE ZOOM (Corrigée pour s'afficher au survol) --- */
+/* --- CARROUSEL (RESTAURÉ) --- */
+.carousel-controls {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.nav-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.8);
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+  pointer-events: auto;
+  margin: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.post-wrapper:hover .nav-btn { opacity: 1; }
+
+.carousel-dots {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  z-index: 5;
+}
+
+.dot { width: 4px; height: 4px; border-radius: 50%; background: rgba(255, 255, 255, 0.5); }
+.dot.active { background: white; }
+
+/* --- ZOOM ICON --- */
 .zoom-icon {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 8px;
+  left: 8px; /* Placé à gauche pour ne pas gêner les flèches */
   background: rgba(0, 0, 0, 0.7);
   color: white;
   border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 14px;
+  padding: 4px 6px;
+  font-size: 12px;
   opacity: 0;
   transition: opacity 0.2s;
   z-index: 10;
@@ -61,19 +104,16 @@ body, html, #root {
   pointer-events: auto;
 }
 
-/* Affiche l'icône UNIQUEMENT sur l'image survolée */
-.post-wrapper:hover .zoom-icon {
-  opacity: 1;
-}
+.post-wrapper:hover .zoom-icon { opacity: 1; }
 
-/* --- LIGHTBOX (Rendu Pro) --- */
+/* --- LIGHTBOX --- */
 .lightbox-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.95);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -83,16 +123,15 @@ body, html, #root {
 .lightbox-content {
   max-width: 90%;
   max-height: 85vh;
-  object-fit: contain;
-  border-radius: 8px;
+  border-radius: 4px;
 }
 
 .close-lightbox {
   position: absolute;
-  top: 15px;
-  right: 15px;
+  top: 20px;
+  right: 20px;
   color: white;
-  font-size: 35px;
+  font-size: 40px;
   background: none;
   border: none;
   cursor: pointer;
