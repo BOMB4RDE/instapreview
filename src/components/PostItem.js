@@ -7,21 +7,19 @@ export default function PostItem({ post }) {
   const isCarousel = images.length > 1;
 
   const nextSlide = (e) => {
+    e.preventDefault();
     e.stopPropagation();
-    if (currentIndex < images.length - 1) {
-      setCurrentIndex(prev => prev + 1);
-    }
+    if (currentIndex < images.length - 1) setCurrentIndex(currentIndex + 1);
   };
 
   const prevSlide = (e) => {
+    e.preventDefault();
     e.stopPropagation();
-    if (currentIndex > 0) {
-      setCurrentIndex(prev => prev - 1);
-    }
+    if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
   };
 
   return (
-    <div className="post-wrapper">
+    <div className="post-wrapper" style={{ position: 'relative', width: '100%', height: '100%' }}>
       <AnimatePresence mode="wait">
         <motion.img
           key={images[currentIndex]}
@@ -37,29 +35,21 @@ export default function PostItem({ post }) {
       {isCarousel && (
         <>
           <div className="carousel-controls">
-            {/* Bouton Gauche */}
-            {currentIndex > 0 ? (
-              <button 
-                className="nav-btn left" 
-                onClick={prevSlide}
-                onPointerDown={(e) => e.stopPropagation()} 
-              >
-                ‹
-              </button>
-            ) : <div />} 
-
-            {/* Bouton Droite */}
-            {currentIndex < images.length - 1 ? (
-              <button 
-                className="nav-btn right" 
-                onClick={nextSlide}
-                onPointerDown={(e) => e.stopPropagation()}
-              >
-                ›
-              </button>
-            ) : <div />}
+            <button 
+              className="nav-btn left" 
+              style={{ visibility: currentIndex === 0 ? 'hidden' : 'visible' }}
+              onPointerDown={prevSlide}
+            >
+              ‹
+            </button>
+            <button 
+              className="nav-btn right" 
+              style={{ visibility: currentIndex === images.length - 1 ? 'hidden' : 'visible' }}
+              onPointerDown={nextSlide}
+            >
+              ›
+            </button>
           </div>
-          
           <div className="carousel-dots">
             {images.map((_, i) => (
               <div key={i} className={`dot ${i === currentIndex ? 'active' : ''}`} />
