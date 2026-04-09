@@ -12,16 +12,24 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
-    
-    // On simplifie les données pour notre widget
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: data.message });
+    }
+
     const posts = data.results.map(page => {
-      const files = page.properties.Images.files; // "Images" doit être le nom de ta colonne Notion
+      // On cible précisément ta colonne "Media" vue sur ta capture
+      const mediaProp = page.properties.Media;
+      const files = mediaProp && mediaProp.files ? mediaProp.files : [];
+      
+      if (files.length === 0) return null;
+
       return {
         id: page.id,
-        // Si plusieurs fichiers, on crée un tableau (carrousel), sinon une string
-        url: files.length > 1 ? files.map(f => f.file?.url || f.external?.url) : (files[0]?.file?.url || files[0]?.external?.url)
+        // On récupère toutes les URLs pour gérer les carrousels
+        url: files.map(f => f.file?.url || f.external?.url)
       };
-    });
+    }).filter(post => post !== null);
 
     res.status(200).json(posts);
   } catch (error) {
