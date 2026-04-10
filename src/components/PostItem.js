@@ -20,14 +20,13 @@ export default function PostItem({ post }) {
     if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
   };
 
-  // --- NOUVELLE FONCTION POUR OUVRIR LA LIGHTBOX ---
-  const handleZoomClick = (e) => {
-    // Empêche ABSOLUMENT le drag-and-drop de s'activer
-    e.preventDefault();
-    e.stopPropagation(); 
-    
-    // Ouvre la vue en grand
-    setIsLightboxOpen(true);
+  // --- FONCTION DE FERMETURE (Corrigée) ---
+  const closeLightbox = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation(); // Crucial pour ne pas cliquer sur le feed derrière
+    }
+    setIsLightboxOpen(false);
   };
 
   return (
@@ -47,30 +46,18 @@ export default function PostItem({ post }) {
           />
         </AnimatePresence>
 
-        {/* --- LOUPE CORRIGÉE (Clic Forcé) --- */}
+        {/* LOUPE STABLE */}
         {isHovered && (
           <div 
-            // data-no-drag dit à Framer Motion : "Ne me drag pas si on clique ici"
             data-no-drag="true"
-            // onPointerDown est déclenché AVANT le début du drag
-            onPointerDown={handleZoomClick} 
+            onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setIsLightboxOpen(true); }} 
             style={{
-              position: 'absolute',
-              top: '10px',
-              right: '10px',
-              backgroundColor: 'white',
-              color: 'black',
-              padding: '6px 10px',
-              borderRadius: '6px',
-              fontSize: '18px',
-              cursor: 'pointer',
-              zIndex: 999, // Devant tout
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
-              fontWeight: 'bold',
-              pointerEvents: 'auto' // Force la détection du clic
+              position: 'absolute', top: '10px', right: '10px',
+              backgroundColor: 'white', color: 'black', padding: '6px 10px',
+              borderRadius: '6px', fontSize: '18px', cursor: 'pointer',
+              zIndex: 999, display: 'flex', alignItems: 'center',
+              justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
+              fontWeight: 'bold', pointerEvents: 'auto'
             }}
           >
             🔍
@@ -93,7 +80,7 @@ export default function PostItem({ post }) {
         )}
       </div>
 
-      {/* --- LIGHTBOX (Vue en grand) --- */}
+      {/* --- LIGHTBOX (Vue en grand - Adaptée à Notion) --- */}
       <AnimatePresence>
         {isLightboxOpen && (
           <motion.div 
@@ -102,37 +89,55 @@ export default function PostItem({ post }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             // Clique sur le fond pour fermer
-            onClick={() => setIsLightboxOpen(false)} 
+            onClick={closeLightbox} 
             style={{
-                position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-                backgroundColor: 'rgba(0,0,0,0.95)', display: 'flex', alignItems: 'center',
-                justifyContent: 'center', zIndex: 10000, cursor: 'zoom-out'
+                // Remplit tout le bloc du widget Notion proprement
+                position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                backgroundColor: 'rgba(0,0,0,0.98)', // Fond très sombre pour masquer le feed
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                zIndex: 10000, // Par-dessus tout dans le widget
+                cursor: 'zoom-out',
+                pointerEvents: 'auto' // Pour capturer le clic de fermeture
             }}
           >
-            {/* Croix de fermeture (en haut à droite) */}
-            <button 
-                className="close-lightbox" 
-                onClick={() => setIsLightboxOpen(false)}
-                style={{
-                    position: 'absolute', top: '20px', right: '20px', color: 'white',
-                    fontSize: '50px', background: 'none', border: 'none', cursor: 'pointer',
-                    fontWeight: 'bold', lineheight: 1, zIndex: 10001
-                }}
+            {/* --- CROIX DE FERMETURE (Positionnée en haut à droite DU WIDGET) --- */}
+            <div 
+              onClick={closeLightbox} // Clic sur le div de la croix pour fermer
+              style={{
+                  position: 'absolute',
+                  top: '15px',
+                  right: '15px',
+                  color: 'white',
+                  fontSize: '50px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  lineHeight: '1',
+                  padding: '0 10px',
+                  zIndex: 10002, // Devant l'image agrandie
+                  // Petite astuce pour s'assurer que Notion ne l'intercepte pas
+                  userSelect: 'none',
+                  WebkitUserSelect: 'none'
+              }}
             >
-                ×
-            </button>
+              ×
+            </div>
             
             <motion.img 
               src={images[currentIndex]} 
               className="lightbox-content"
-              initial={{ scale: 0.8 }}
+              initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
-              exit={{ scale: 0.8 }}
+              exit={{ scale: 0.9 }}
               // Empêche la fermeture si on clique sur l'image elle-même
               onClick={(e) => e.stopPropagation()} 
               style={{
-                  maxWidth: '90%', maxHeight: '85vh', borderRadius: '8px',
-                  boxShadow: '0 0 40px rgba(0,0,0,0.6)', cursor: 'default'
+                  // L'image s'adapte à la taille du bloc Notion
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'contain', // Affiche toute l'image sans la couper
+                  borderRadius: '0px', // Pas de bords arrondis en grand
+                  boxShadow: 'none', // Pas d'ombre inutile
+                  cursor: 'default'
               }}
             />
           </motion.div>
