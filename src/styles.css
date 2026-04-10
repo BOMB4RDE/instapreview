@@ -121,3 +121,10 @@ body, html, #root {
   cursor: pointer;
   z-index: 100000;
 }
+
+/* Empêche la grille de bloquer la lightbox */
+.grid-container {
+  transform: none !important;
+  perspective: none !important;
+  z-index: 1;
+}
