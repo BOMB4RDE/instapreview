@@ -140,3 +140,25 @@ body, html, #root {
   position: relative;
   z-index: 1;
 }
+
+/* --- CORRECTIF ANTI-MÉLANGE --- */
+.grid-container {
+  transform: none !important;
+  perspective: none !important;
+  contain: paint; /* Force les éléments à rester dans leur zone sauf la lightbox */
+}
+
+.post-wrapper {
+  /* On s'assure que le wrapper ne bloque pas la montée du z-index */
+  z-index: 1;
+}
+
+.post-wrapper:hover {
+  z-index: 10; /* Passe au dessus des voisins au survol */
+}
+
+/* Style de la croix pour être sûr qu'elle soit visible */
+.close-lightbox:hover {
+  color: #ff4d4d !important;
+  transform: scale(1.1);
+}
