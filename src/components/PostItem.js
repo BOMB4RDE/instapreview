@@ -8,6 +8,16 @@ export default function PostItem({ post, onZoom }) {
   const images = Array.isArray(post.url) ? post.url : [post.url];
   const isCarousel = images.length > 1;
 
+  const nextSlide = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    if (currentIndex < images.length - 1) setCurrentIndex(currentIndex + 1);
+  };
+
+  const prevSlide = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
+  };
+
   return (
     <div 
       className="post-wrapper"
@@ -23,26 +33,45 @@ export default function PostItem({ post, onZoom }) {
         />
       </AnimatePresence>
 
-      {/* Clique ici envoie l'URL vers App.js */}
+      {/* --- LOUPE QUI DÉCLENCHE LE ZOOM --- */}
       {isHovered && (
         <div 
-          className="zoom-icon" 
+          className="zoom-icon"
           onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
-            onZoom(images[currentIndex]);
+            onZoom(images[currentIndex]); // Envoie l'image à App.js
           }}
         >
           🔍
         </div>
       )}
 
-      {/* Garde ton code de carrousel intact ici... */}
       {isCarousel && (
-        <div className="carousel-dots">
-          {images.map((_, i) => (
-            <div key={i} className={`dot ${i === currentIndex ? 'active' : ''}`} />
-          ))}
-        </div>
+        <>
+          <div className="carousel-controls">
+            <button 
+              className="nav-btn" 
+              style={{ visibility: currentIndex === 0 ? 'hidden' : 'visible' }}
+              onPointerDown={prevSlide}
+            >
+              ‹
+            </button>
+            <button 
+              className="nav-btn" 
+              style={{ visibility: currentIndex === images.length - 1 ? 'hidden' : 'visible' }}
+              onPointerDown={nextSlide}
+            >
+              ›
+            </button>
+          </div>
+          
+          <div className="carousel-dots">
+            {images.map((_, i) => (
+              <div key={i} className={`dot ${i === currentIndex ? 'active' : ''}`} />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
