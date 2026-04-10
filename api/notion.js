@@ -13,10 +13,10 @@ export default async function handler(req, res) {
         'Notion-Version': '2022-06-28',
       },
       body: JSON.stringify({
-        // TRI CHRONOLOGIQUE : Plus récent en premier
+        // MODIFICATION : On trie par la propriété "Date" du calendrier
         sorts: [
           {
-            timestamp: "created_time",
+            property: "Date",
             direction: "descending"
           }
         ]
@@ -28,13 +28,15 @@ export default async function handler(req, res) {
 
     const posts = data.results.map(page => {
       const mediaProp = page.properties.Media || page.properties.media;
+      const dateProp = page.properties.Date?.date?.start; // On récupère la date du calendrier
       const files = mediaProp?.files || [];
+      
       if (files.length === 0) return null;
+      
       return {
         id: page.id,
         url: files.map(f => f.file?.url || f.external?.url),
-        // On récupère la date de création pour le futur swap
-        date: page.created_time
+        date: dateProp || page.created_time // Priorité à la date du calendrier
       };
     }).filter(post => post !== null);
 
