@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import FeedGrid from './components/FeedGrid';
-import { motion, AnimatePresence } from 'framer-motion'; // Ajout pour l'animation
+import { motion, AnimatePresence } from 'framer-motion';
 import './styles.css';
 
 function App() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(null); // État pour la Lightbox
+  const [selectedImage, setSelectedImage] = useState(null); // Pour la vue agrandie
 
   useEffect(() => {
     fetch('/api/notion')
@@ -31,10 +31,10 @@ function App() {
 
   return (
     <div className="App">
-      {/* On passe la fonction de zoom à la grille */}
+      {/* On passe la fonction de zoom à FeedGrid */}
       <FeedGrid initialData={posts} onZoom={(url) => setSelectedImage(url)} />
 
-      {/* LA LIGHTBOX EST MAINTENANT ICI (PLANS SUPÉRIEUR) */}
+      {/* --- LA LIGHTBOX (S'affiche par-dessus tout) --- */}
       <AnimatePresence>
         {selectedImage && (
           <motion.div 
