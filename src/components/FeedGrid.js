@@ -12,7 +12,6 @@ function SortablePost({ id, post, onZoom }) {
     zIndex: isDragging ? 100 : 1,
     opacity: isDragging ? 0.8 : 1,
   };
-
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <PostItem post={post} onZoom={onZoom} />
@@ -34,15 +33,12 @@ export default function FeedGrid({ initialData, onZoom }) {
     if (active && over && active.id !== over.id) {
       const oldIndex = items.findIndex((i) => i.id === active.id);
       const newIndex = items.findIndex((i) => i.id === over.id);
-
+      
       const activeItem = items[oldIndex];
       const overItem = items[newIndex];
 
-      // On échange les dates dans l'interface immédiatement (Optimistic UI)
-      const newItems = arrayMove(items, oldIndex, newIndex);
-      setItems(newItems);
+      setItems((prev) => arrayMove(prev, oldIndex, newIndex));
 
-      // On envoie les mises à jour à Notion
       try {
         await Promise.all([
           fetch('/api/notion', {
@@ -56,9 +52,8 @@ export default function FeedGrid({ initialData, onZoom }) {
             body: JSON.stringify({ pageId: overItem.id, newDate: activeItem.date })
           })
         ]);
-        console.log("Notion mis à jour !");
       } catch (err) {
-        console.error("Erreur de synchro Notion:", err);
+        console.error("Erreur synchro:", err);
       }
     }
   };
