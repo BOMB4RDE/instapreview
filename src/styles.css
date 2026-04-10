@@ -128,3 +128,15 @@ body, html, #root {
   perspective: none !important;
   z-index: 1;
 }
+
+/* Force l'application à être le point de référence du plein écran */
+.App {
+  position: relative;
+  min-height: 100vh;
+}
+
+/* On s'assure que la grille ne crée pas de conflit de profondeur */
+.grid-container {
+  position: relative;
+  z-index: 1;
+}
