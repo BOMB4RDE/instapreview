@@ -1,19 +1,43 @@
-import React from 'react';
-import PostItem from './components/PostItem';
+import React, { useEffect, useState } from 'react';
+import FeedGrid from './components/FeedGrid';
 import './styles.css';
 
-// Assure-toi que tes données 'posts' sont bien définies ou importées ici
-// import { posts } from './data'; 
+function App() {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-export default function App() {
+  useEffect(() => {
+    fetch('/api/notion')
+      .then(res => {
+        if (!res.ok) throw new Error('Erreur réseau');
+        return res.json();
+      })
+      .then(data => {
+        // Si data est une erreur envoyée par l'API
+        if (data.error) {
+          setError(data.error);
+        } else {
+          setPosts(data);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Erreur:", err);
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <div className="status-msg">Chargement du feed...</div>;
+  if (error) return <div className="status-msg">Erreur : {error}</div>;
+  if (posts.length === 0) return <div className="status-msg">Aucune image trouvée dans Media.</div>;
+
   return (
     <div className="App">
-      <div className="grid-container">
-        {/* On vérifie que posts existe avant de faire le map */}
-        {typeof posts !== 'undefined' && posts.map((post) => (
-          <PostItem key={post.id} post={post} />
-        ))}
-      </div>
+      <FeedGrid initialData={posts} />
     </div>
   );
 }
+
+export default App;
