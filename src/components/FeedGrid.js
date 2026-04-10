@@ -6,7 +6,6 @@ import PostItem from './PostItem';
 
 function SortablePost({ id, post, onZoom }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
-
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -22,26 +21,45 @@ function SortablePost({ id, post, onZoom }) {
 }
 
 export default function FeedGrid({ initialData, onZoom }) {
-  // CRUCIAL : On synchronise l'état local avec les données reçues du parent (App.js)
   const [items, setItems] = useState(initialData);
-
-  useEffect(() => {
-    setItems(initialData);
-  }, [initialData]);
-
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } })
   );
 
-  const handleDragEnd = (event) => {
+  useEffect(() => { setItems(initialData); }, [initialData]);
+
+  const handleDragEnd = async (event) => {
     const { active, over } = event;
     if (active && over && active.id !== over.id) {
-      setItems((prevItems) => {
-        const oldIndex = prevItems.findIndex((i) => i.id === active.id);
-        const newIndex = prevItems.findIndex((i) => i.id === over.id);
-        return arrayMove(prevItems, oldIndex, newIndex);
-      });
+      const oldIndex = items.findIndex((i) => i.id === active.id);
+      const newIndex = items.findIndex((i) => i.id === over.id);
+
+      const activeItem = items[oldIndex];
+      const overItem = items[newIndex];
+
+      // On échange les dates dans l'interface immédiatement (Optimistic UI)
+      const newItems = arrayMove(items, oldIndex, newIndex);
+      setItems(newItems);
+
+      // On envoie les mises à jour à Notion
+      try {
+        await Promise.all([
+          fetch('/api/notion', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pageId: activeItem.id, newDate: overItem.date })
+          }),
+          fetch('/api/notion', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pageId: overItem.id, newDate: activeItem.date })
+          })
+        ]);
+        console.log("Notion mis à jour !");
+      } catch (err) {
+        console.error("Erreur de synchro Notion:", err);
+      }
     }
   };
 
@@ -50,12 +68,7 @@ export default function FeedGrid({ initialData, onZoom }) {
       <SortableContext items={items} strategy={rectSortingStrategy}>
         <div className="grid-container">
           {items.map((post) => (
-            <SortablePost 
-              key={post.id} 
-              id={post.id} 
-              post={post} 
-              onZoom={onZoom} 
-            />
+            <SortablePost key={post.id} id={post.id} post={post} onZoom={onZoom} />
           ))}
         </div>
       </SortableContext>
