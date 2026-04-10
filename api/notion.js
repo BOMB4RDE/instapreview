@@ -1,8 +1,12 @@
 export default async function handler(req, res) {
   const { NOTION_TOKEN, DATABASE_ID } = process.env;
   res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // CAS 1 : MISE À JOUR (PATCH) - Appelé lors du Drag & Drop
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
+  // MISE À JOUR (Lors du Drag & Drop)
   if (req.method === 'PATCH') {
     const { pageId, newDate } = req.body;
     try {
@@ -14,9 +18,7 @@ export default async function handler(req, res) {
           'Notion-Version': '2022-06-28',
         },
         body: JSON.stringify({
-          properties: {
-            'Date': { date: { start: newDate } }
-          }
+          properties: { 'Date': { date: { start: newDate } } }
         }),
       });
       const data = await response.json();
@@ -26,7 +28,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // CAS 2 : RÉCUPÉRATION (POST/GET) - Ton code actuel trié par Date
+  // LECTURE (Tri chronologique)
   try {
     const response = await fetch(`https://api.notion.com/v1/databases/${DATABASE_ID}/query`, {
       method: 'POST',
@@ -49,7 +51,7 @@ export default async function handler(req, res) {
       return {
         id: page.id,
         url: files.map(f => f.file?.url || f.external?.url),
-        date: dateProp // On garde la date pour l'échange
+        date: dateProp
       };
     }).filter(post => post !== null);
 
