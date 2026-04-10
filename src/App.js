@@ -9,21 +9,14 @@ function App() {
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
 
-  // Fonction pour charger les données
   const loadData = useCallback(() => {
     setLoading(true);
-    fetch('/api/notion')
-      .then(res => {
-        if (!res.ok) throw new Error('Erreur réseau');
-        return res.json();
-      })
+    // On ajoute un timestamp (?t=...) pour forcer le navigateur à ignorer le cache
+    fetch(`/api/notion?t=${Date.now()}`)
+      .then(res => res.json())
       .then(data => {
-        if (data.error) {
-          setError(data.error);
-        } else {
-          setPosts(data);
-          setError(null);
-        }
+        if (data.error) setError(data.error);
+        else setPosts(data);
         setLoading(false);
       })
       .catch(err => {
@@ -32,26 +25,24 @@ function App() {
       });
   }, []);
 
-  // Premier chargement au montage du composant
   useEffect(() => {
     loadData();
   }, [loadData]);
 
-  if (loading && posts.length === 0) return <div className="status-msg">Chargement du feed...</div>;
-  if (error) return <div className="status-msg">Erreur : {error} <button onClick={loadData}>Réessayer</button></div>;
-
   return (
     <div className="App">
-      {/* HEADER AVEC BOUTON REFRESH */}
       <div className="widget-header">
         <button className="refresh-btn" onClick={loadData} disabled={loading}>
           {loading ? "..." : "↻ Refresh"}
         </button>
       </div>
 
-      <FeedGrid initialData={posts} onZoom={(url) => setSelectedImage(url)} />
+      {!loading || posts.length > 0 ? (
+        <FeedGrid initialData={posts} onZoom={(url) => setSelectedImage(url)} />
+      ) : (
+        <div className="status-msg">Chargement...</div>
+      )}
 
-      {/* LIGHTBOX (CONSERVÉE) */}
       <AnimatePresence>
         {selectedImage && (
           <motion.div 
