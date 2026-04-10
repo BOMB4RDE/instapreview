@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import FeedGrid from './components/FeedGrid';
 import { motion, AnimatePresence } from 'framer-motion';
 import './styles.css';
@@ -7,9 +7,11 @@ function App() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(null); // État pour l'image agrandie
+  const [selectedImage, setSelectedImage] = useState(null);
 
-  useEffect(() => {
+  // Fonction pour charger les données
+  const loadData = useCallback(() => {
+    setLoading(true);
     fetch('/api/notion')
       .then(res => {
         if (!res.ok) throw new Error('Erreur réseau');
@@ -20,6 +22,7 @@ function App() {
           setError(data.error);
         } else {
           setPosts(data);
+          setError(null);
         }
         setLoading(false);
       })
@@ -29,15 +32,26 @@ function App() {
       });
   }, []);
 
-  if (loading) return <div className="status-msg">Chargement du feed...</div>;
-  if (error) return <div className="status-msg">Erreur : {error}</div>;
+  // Premier chargement au montage du composant
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  if (loading && posts.length === 0) return <div className="status-msg">Chargement du feed...</div>;
+  if (error) return <div className="status-msg">Erreur : {error} <button onClick={loadData}>Réessayer</button></div>;
 
   return (
     <div className="App">
-      {/* On passe la fonction onZoom à la grille pour qu'elle redescende aux items */}
+      {/* HEADER AVEC BOUTON REFRESH */}
+      <div className="widget-header">
+        <button className="refresh-btn" onClick={loadData} disabled={loading}>
+          {loading ? "..." : "↻ Refresh"}
+        </button>
+      </div>
+
       <FeedGrid initialData={posts} onZoom={(url) => setSelectedImage(url)} />
 
-      {/* --- STRUCTURE DE LA LIGHTBOX (AU-DESSUS DE TOUT) --- */}
+      {/* LIGHTBOX (CONSERVÉE) */}
       <AnimatePresence>
         {selectedImage && (
           <motion.div 
@@ -47,12 +61,7 @@ function App() {
             exit={{ opacity: 0 }}
             onClick={() => setSelectedImage(null)}
           >
-            <button 
-              className="close-lightbox" 
-              onClick={() => setSelectedImage(null)}
-            >
-              ×
-            </button>
+            <button className="close-lightbox" onClick={() => setSelectedImage(null)}>×</button>
             <motion.img 
               src={selectedImage} 
               className="lightbox-content"
