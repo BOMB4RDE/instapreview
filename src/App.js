@@ -11,7 +11,6 @@ function App() {
 
   const loadData = useCallback(() => {
     setLoading(true);
-    // Le timestamp empêche le navigateur de garder une ancienne version en cache
     fetch(`/api/notion?t=${Date.now()}`)
       .then(res => res.json())
       .then(data => {
@@ -25,44 +24,27 @@ function App() {
       });
   }, []);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+  useEffect(() => { loadData(); }, [loadData]);
 
   return (
     <div className="App">
       <div className="widget-header">
         <button className="refresh-btn" onClick={loadData} disabled={loading}>
-          {loading ? "..." : "↻ refresh"}
+          {loading ? "..." : "↻ Sync Calendrier"}
         </button>
       </div>
 
-      {error ? (
-        <div className="status-msg">Erreur : {error}</div>
-      ) : posts.length === 0 && !loading ? (
-        <div className="status-msg">Aucune image dans le calendrier.</div>
-      ) : (
+      {!loading || posts.length > 0 ? (
         <FeedGrid initialData={posts} onZoom={(url) => setSelectedImage(url)} />
+      ) : (
+        <div className="status-msg">Chargement...</div>
       )}
 
       <AnimatePresence>
         {selectedImage && (
-          <motion.div 
-            className="lightbox-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSelectedImage(null)}
-          >
+          <motion.div className="lightbox-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedImage(null)}>
             <button className="close-lightbox" onClick={() => setSelectedImage(null)}>×</button>
-            <motion.img 
-              src={selectedImage} 
-              className="lightbox-content"
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.8 }}
-              onClick={(e) => e.stopPropagation()} 
-            />
+            <motion.img src={selectedImage} className="lightbox-content" initial={{ scale: 0.8 }} animate={{ scale: 1 }} exit={{ scale: 0.8 }} onClick={(e) => e.stopPropagation()} />
           </motion.div>
         )}
       </AnimatePresence>
