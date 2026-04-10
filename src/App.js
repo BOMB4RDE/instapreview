@@ -11,7 +11,7 @@ function App() {
 
   const loadData = useCallback(() => {
     setLoading(true);
-    // On ajoute un timestamp (?t=...) pour forcer le navigateur à ignorer le cache
+    // Le timestamp empêche le navigateur de garder une ancienne version en cache
     fetch(`/api/notion?t=${Date.now()}`)
       .then(res => res.json())
       .then(data => {
@@ -33,14 +33,16 @@ function App() {
     <div className="App">
       <div className="widget-header">
         <button className="refresh-btn" onClick={loadData} disabled={loading}>
-          {loading ? "..." : "↻ Refresh"}
+          {loading ? "..." : "↻ Sync Calendrier"}
         </button>
       </div>
 
-      {!loading || posts.length > 0 ? (
-        <FeedGrid initialData={posts} onZoom={(url) => setSelectedImage(url)} />
+      {error ? (
+        <div className="status-msg">Erreur : {error}</div>
+      ) : posts.length === 0 && !loading ? (
+        <div className="status-msg">Aucune image dans le calendrier.</div>
       ) : (
-        <div className="status-msg">Chargement...</div>
+        <FeedGrid initialData={posts} onZoom={(url) => setSelectedImage(url)} />
       )}
 
       <AnimatePresence>
