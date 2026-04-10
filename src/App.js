@@ -1,43 +1,43 @@
-import React, { useEffect, useState } from 'react';
-import FeedGrid from './components/FeedGrid';
-import './styles.css';
+import React, { useState } from 'react';
+import PostItem from './components/PostItem';
+// ... autres imports (grille, etc)
 
-function App() {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetch('/api/notion')
-      .then(res => {
-        if (!res.ok) throw new Error('Erreur réseau');
-        return res.json();
-      })
-      .then(data => {
-        // Si data est une erreur envoyée par l'API
-        if (data.error) {
-          setError(data.error);
-        } else {
-          setPosts(data);
-        }
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Erreur:", err);
-        setError(err.message);
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) return <div className="status-msg">Chargement du feed...</div>;
-  if (error) return <div className="status-msg">Erreur : {error}</div>;
-  if (posts.length === 0) return <div className="status-msg">Aucune image trouvée dans Media.</div>;
+export default function App() {
+  const [selectedImage, setSelectedImage] = useState(null);
 
   return (
     <div className="App">
-      <FeedGrid initialData={posts} />
+      <div className="grid-container">
+        {posts.map((post) => (
+          <PostItem 
+            key={post.id} 
+            post={post} 
+            onZoom={(url) => setSelectedImage(url)} 
+          />
+        ))}
+      </div>
+
+      {/* LA LIGHTBOX EST ICI, EN DEHORS DE LA GRILLE */}
+      {selectedImage && (
+        <div 
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            width: '100vw', height: '100vh', backgroundColor: 'black',
+            zIndex: 999999, display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}
+          onClick={() => setSelectedImage(null)}
+        >
+          <div 
+            style={{ position: 'absolute', top: '20px', right: '20px', color: 'white', fontSize: '50px', cursor: 'pointer', zIndex: 1000000 }}
+            onClick={() => setSelectedImage(null)}
+          >×</div>
+          <img 
+            src={selectedImage} 
+            style={{ maxWidth: '95%', maxHeight: '95%', objectFit: 'contain' }} 
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }
-
-export default App;
