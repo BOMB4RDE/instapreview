@@ -7,7 +7,7 @@ function App() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(null); // Pour la vue agrandie
+  const [selectedImage, setSelectedImage] = useState(null); // État pour l'image agrandie
 
   useEffect(() => {
     fetch('/api/notion')
@@ -16,8 +16,11 @@ function App() {
         return res.json();
       })
       .then(data => {
-        if (data.error) { setError(data.error); } 
-        else { setPosts(data); }
+        if (data.error) {
+          setError(data.error);
+        } else {
+          setPosts(data);
+        }
         setLoading(false);
       })
       .catch(err => {
@@ -26,15 +29,15 @@ function App() {
       });
   }, []);
 
-  if (loading) return <div className="status-msg">Chargement...</div>;
+  if (loading) return <div className="status-msg">Chargement du feed...</div>;
   if (error) return <div className="status-msg">Erreur : {error}</div>;
 
   return (
     <div className="App">
-      {/* On passe la fonction de zoom à FeedGrid */}
+      {/* On passe la fonction onZoom à la grille pour qu'elle redescende aux items */}
       <FeedGrid initialData={posts} onZoom={(url) => setSelectedImage(url)} />
 
-      {/* --- LA LIGHTBOX (S'affiche par-dessus tout) --- */}
+      {/* --- STRUCTURE DE LA LIGHTBOX (AU-DESSUS DE TOUT) --- */}
       <AnimatePresence>
         {selectedImage && (
           <motion.div 
@@ -44,7 +47,12 @@ function App() {
             exit={{ opacity: 0 }}
             onClick={() => setSelectedImage(null)}
           >
-            <button className="close-lightbox" onClick={() => setSelectedImage(null)}>×</button>
+            <button 
+              className="close-lightbox" 
+              onClick={() => setSelectedImage(null)}
+            >
+              ×
+            </button>
             <motion.img 
               src={selectedImage} 
               className="lightbox-content"
