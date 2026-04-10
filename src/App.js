@@ -33,7 +33,7 @@ function App() {
     <div className="App">
       <div className="widget-header">
         <button className="refresh-btn" onClick={loadData} disabled={loading}>
-          {loading ? "..." : "↻ Sync Calendrier"}
+          {loading ? "..." : "↻ refresh"}
         </button>
       </div>
 
